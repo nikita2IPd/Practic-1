@@ -1,62 +1,70 @@
-﻿#include <iostream>
+#include <iostream>
 #include <string>
 #include <cstdlib>
 #include <ctime>
 
-// Функция для генерации случайного символа
-char generateRandomChar() {
-    const std::string validChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%&*+?";
-    int randomIndex = rand() % validChars.length();
-    return validChars[randomIndex];
-}
-
-// Функция для генерации пароля заданной длины
-std::string generatePassword(int length) {
-    std::string password;
-    for (int i = 0; i < length; i++) {
-        password += generateRandomChar();
-    }
-    return password;
-}
-
-// Функция для проверки пароля
-bool isPasswordValid(const std::string& password) {
-    bool hasUppercase = false;
-    bool hasLowercase = false;
+bool checkPassword(const std::string& password) {
+    bool hasLowerCase = false;
+    bool hasUpperCase = false;
     bool hasSpecialChar = false;
 
     for (char c : password) {
-        if (isupper(c)) {
-            hasUppercase = true;
+        if (islower(c)) {
+            hasLowerCase = true;
         }
-        else if (islower(c)) {
-            hasLowercase = true;
+        else if (isupper(c)) {
+            hasUpperCase = true;
         }
         else if (c == '!' || c == '@' || c == '#' || c == '$' || c == '%' || c == '&' || c == '*' || c == '+' || c == '?') {
             hasSpecialChar = true;
         }
     }
 
-    return hasUppercase && hasLowercase && hasSpecialChar;
+    return hasLowerCase && hasUpperCase && hasSpecialChar;
+}
+
+std::string generatePassword(int length) {
+    std::string password;
+    std::string specialChars = "!@#$%&*+?";
+
+    srand(static_cast<unsigned int>(time(0)));
+
+    for (int i = 0; i < length; ++i) {
+        int type = rand() % 3; // 0 - lowercase, 1 - uppercase, 2 - special char
+
+        if (type == 0) {
+            password += static_cast<char>((rand() % 26) + 'a');
+        }
+        else if (type == 1) {
+            password += static_cast<char>((rand() % 26) + 'A');
+        }
+        else if (type == 2) {
+            password += specialChars[rand() % specialChars.length()];
+        }
+    }
+
+    return password;
 }
 
 int main() {
     setlocale(LC_ALL, "Russian");
-    srand(time(0)); // Инициализация генератора случайных чисел
+    std::string password;
+    std::cout << "Введите пароль: ";
+    std::cin >> password;
 
-    int passwordLength;
-    std::cout << "Введите длину пароля: ";
-    std::cin >> passwordLength;
-
-    std::string password = generatePassword(passwordLength);
-    std::cout << "Сгенерированный пароль: " << password << std::endl;
-
-    if (isPasswordValid(password)) {
-        std::cout << "Пароль действителен." << std::endl;
+    if (checkPassword(password)) {
+        std::cout << "Пароль действительный." << std::endl;
     }
     else {
-        std::cout << "Пароль недействителен." << std::endl;
+        std::cout << "Пароль недействительный." << std::endl;
     }
+
+    int length;
+    std::cout << "Введите длину пароля для генерации: ";
+    std::cin >> length;
+
+    std::string generatedPassword = generatePassword(length);
+    std::cout << "Сгенерированный пароль: " << generatedPassword << std::endl;
 
     return 0;
 }
